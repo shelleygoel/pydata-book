@@ -1,26 +1,50 @@
-# 
 # Creating DataFrame
 ## From CSV
+
 # Indexing
 ## Normal indexing
 ## MultiIndex
 ### creating multiindex
 ### indexing using multindex
+
+
 # Missing Values
+
+# Duplication
+## duplicated records
+## duplicated labels
+
+# Categorical data
+
 # Grouping
 ## GroupBy
 ## Pivot Table
+
 # Merging
 ## pd.merge
 ## pd.concat
 ## df.join
+
 # Plotting
+
 # Statistics
+
 # Sorting
+
 # Operations
 ## creating new columns from old columns
+
+<br>
+<br>
+
 # TimeSeries
+
 ## Date Range
+
+
+
+<br>
+
 ## Periods
 ### creating period
 ```py
@@ -34,8 +58,10 @@ pd.period_range(start_date, end_end, freq)
 ### creating period Index
 ```py
 pd.PeriodIndex(pd.period_range)
-pd.PeriodIndex(array_of_periods, freq) # pd.PeriodIndex(values, freq="Q-DEC")
-pd.PeriodIndex(year,quarter,month,freq) # pd.PeriodIndex(year=data["year"], quarter=data["quarter"],freq="Q")
+pd.PeriodIndex(array_of_periods, freq) 
+# pd.PeriodIndex(values, freq="Q-DEC")
+pd.PeriodIndex(year,quarter,month,freq) 
+# pd.PeriodIndex(year=data["year"], quarter=data["quarter"],freq="Q")
 ```
 ### changing frequency
 ```py
@@ -53,3 +79,17 @@ period_object.to_period(freq)
 time_series.to_period(freq) # ts.to_period("M")
 ```
 ## Resampling
+```py
+time_series.resample(freq, closed="left|right", label="left|right").asfreq() # without aggregation
+time_series.resample(freq).sum() # w/ aggregations
+
+```
+
+### grouped time resampling
+for data with multiple time series
+```py
+pd.Grouper(freq)
+ts.groupby([key, grouper]).<aggfunc()>
+# ts_grouper = pd.Grouper(freq="5min")
+# df2.set_index("time").groupby(["key", ts_grouper]).sum()
+```
