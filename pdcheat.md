@@ -1,5 +1,9 @@
 # Creating DataFrame
 ## From CSV
+### time series data
+```py
+pd.read_csv(filename, parse_dates=true, infer_datetime_format=True index_col=<int>)
+```
 
 # Indexing
 ## Normal indexing
@@ -28,6 +32,11 @@
 # Plotting
 
 # Statistics
+
+### percentage change
+```py
+<series>.pct_change(periods=<int>)
+```
 
 # Sorting
 
@@ -92,4 +101,11 @@ pd.Grouper(freq)
 ts.groupby([key, grouper]).<aggfunc()>
 # ts_grouper = pd.Grouper(freq="5min")
 # df2.set_index("time").groupby(["key", ts_grouper]).sum()
+```
+
+### rolling window mean
+```py
+time_series.rolling(<int>|freq).<aggfunc()>
+time_series.rolling(<int>|freq).apply(<aggfunc()>)
+#c lose_px.rolling(250).mean()["AAPL"].plot(label="rolling") 
 ```
