@@ -4,7 +4,7 @@
     - [From arrays/dict](#from-arraysdict)
 - [Indexing](#indexing)
   - [setting index](#setting-index)
-  - [Indexing/Slicing](#indexingslicing)
+  - [align index of df using another df](#align-index-of-df-using-another-df)
     - [index names](#index-names)
     - [swapping index levels](#swapping-index-levels)
   - [MultiIndex](#multiindex)
@@ -105,6 +105,10 @@ df.set_index(<column name to use as index>)
 df.reindex(new_index=None, method="None|bfill|ffill|nearest", columns=None) # Conform Series/DataFrame to new index with optional filling logic.
 # df2.reindex(date_index2, method="bfill") to expand date range of dataframe
 ```
+
+## align index of df using another df
+```py
+df.aling(df2, join="inner|outer|left|right") # returns tuple with index of both df aligned
 
 ## Indexing/Slicing
 ```py
@@ -328,6 +332,10 @@ df.idxmax(axis=0|1)
 ```py
 df.sort_values(<column to use for sorting>)
 df[column].argmax()
+
+series.searchsorted() # Find indices where elements should be inserted to maintain order
+
+df.nlargest(5, ["a", "c"])
 ```
 ### rank values
 ```py
@@ -362,7 +370,7 @@ df.isin(iterable)
 ```py
 df[col] = df[col].astype(newtype)
 df.convert_dtypes(infer_objects=True) # convert objects to appropriate type
-
+pd.to_numeric(df) # convert to numeric types
 ```
 ## creating new columns from old columns
 ```py
