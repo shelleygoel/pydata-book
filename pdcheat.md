@@ -66,20 +66,86 @@ df.loc[idx[:,:], idx[:,:]] # useful for multiindex
 
 # Missing Values
 
+detecting missing values
+```py
+df[col].isna() # useful for filtering
+pd.isna(series)
+pd.isnull()
+pd.notnull()
+```
+handling missing values 
+```py
+df.dropna()
+df.fillna()
+```
+
+
 # Duplication
 ## duplicated records
+```py
+df.drop_duplicates(inplace=bool)
+df.duplicated() # return boolean series containing True for duplicated rows
+```
+
 ## duplicated labels
+```py
+df.index.is_unique
+```
 
 # Categorical data
 
+
+
 # Grouping
 ## GroupBy
+```py
+df.groupby(by=["keys"], dropna="True|False").aggfunc()
+```
+```py
+df.groupby({group_mapping}) # dict of row labels and their group label
+df.groupby(func) # func on row label which yiels a group
+df.groupby([func, keys])
+df.group(level=<int>, axis="rows") # grouping on mult-index df w/ index level
+```
+
+## Aggregations
+```py
+grouped.describe()
+df.groupby().agg({"col":"aggfunc"}) # aggfunc: size, mean/std
+```
+
+## split-apply-combine
+```py
+df.groupby().apply(func) # func can return a series/scalar/df
+
+def top5(df, n=5, column="tip_pct"):
+    return df.sort_values(column, ascending=False)[:n]
+
+tips.groupby("smoker").apply(top5, n=1-)
+```
+
+## bucketing data using cut and qcut
+```py
+bin_labels = pd.cut(df, bins=<int>)
+df.groupby(bin_labels)
+```
+## transform
+```py
+df.groupby(keys).transform(func) # produces an dataframe same size as orginal df, func returns a group or a scalar which is broadcasted by transform
+```
+
+
 ## Pivot Table
 
 ```py
 df.pivot(index, columns, values) # df.pivot(index="date", columns="item", values=["value1", "value2"])
-df.pivot_table(values, index, columns, aggfunc, fill_value)
+df.pivot_table(values, index, columns, aggfunc, margins, fill_value)
 # data.pivot_table(index=["number_label"], columns=["category"], aggfunc=[len], fill_value=0)
+```
+### group frquencies
+special case of pivot table
+```py
+pd.crosstab(index,columns,margins)
 ```
 
 # Merging
@@ -92,6 +158,15 @@ pd.merge(df1, df2, left_index=bool, right_on="column name", sort, how) # use df1
 ## multi-index merging
 ```py
 pd.merge(df1, left_index=True, right_on=[multiple cols])
+```
+
+## diff two dataframes using merge
+```py
+pd.merge(ydf, zdf, how='outer',
+                     indicator=True) # indicator returns a _merge column to indicate source of each row
+            .query('_merge == "left_only"')
+            .drop(columns=['_merge'])
+# Rows that appear in ydf but not zdf (Setdiff).
 ```
 
 ## df.join
@@ -114,6 +189,13 @@ pd.melt(df, id_vars=["column names"]) # wide to long, id_vars specify which colu
 
 
 # Plotting
+```py
+df.plot().hist() # hist of each column
+df.plot().scatter() # scatter of each column against index
+df.plot(kind="bar")
+sns.barplot(x="col", y="col", hue="col", data=df)
+
+```
 
 # Statistics
 
@@ -122,12 +204,26 @@ pd.melt(df, id_vars=["column names"]) # wide to long, id_vars specify which colu
 <series>.pct_change(periods=<int>)
 ```
 
+```py
+df[col].rank()
+df[col].cumsum()
+df[col].mean()
+```
+
 # Sorting
+
+### sort values
 ```py
 df.sort_values(<column to use for sorting>)
 df[column].argmax()
 ```
-sort by index
+### rank values
+```py
+df.rank(numeric_only="True|False", axis="0|1", pct=bool, method="average|min|max|dense|first")
+df[col].rank(method, ascending="True|False")
+```
+
+### sort by index
 ```py
 df.sort_index(level)
 ```
@@ -140,6 +236,11 @@ df.sort_index(level)
 df.drop(label, axis)
 ```
 
+## check for multiple values
+```py
+df.isin(iterable)
+```
+
 ## Change dtype
 ```py
 df[col] = df[col].astype(newtype)
@@ -150,14 +251,23 @@ df.convert_dtypes(infer_objects=True) # convert objects to appropriate type
 ```py
 df[new_col] = func(df[old_col])
 df[new_col] = df[old_col].map(func)
+df[new_col] = df[old_col].map({dict mappung})
+# s.map({'cat': 'kitten', 'dog': 'puppy'})
 # df["row1"] = df["row"].map(lambda x: x[:5])
 
 df[new_col] = df.apply(func(row), axis=1)
+```
+## column wise ops
+```py
+df[col].apply(aggfunc)
+#df[col].apply(np.mean) gives mean of col
 ```
 
 ## String columns
 ```py
 df[col].str.split(<sep>, n=<number of splits>, expand=bool)
+df[col].str.startswith("pattern")
+df[col].str.contains("pattern")
 # df[["code", "location"]] = df["row"].str.split(n=1, expand=True)
 ```
 
@@ -166,13 +276,64 @@ df[col].str.split(<sep>, n=<number of splits>, expand=bool)
 df.apply(func(row/col), axis=1)
 ```
 
+## unique values
+```py
+df[col].nunique() # number of unique values in col
+df[col].value_counts() # frequency of unique elemets
+```
+
+## boolean
+```py
+df.any()
+df.all()
+```
+
 <br>
 <br>
 
 # TimeSeries
 
-## Date Range
+## datetime
+```py
+from datetime import datetime, timedelta
+datetime(year, month, day)
+timedelta(days)
+date.strftime("time format string") # reformat date
+datetime.strptime(string, strfmt) # convert string to datetime
+```
 
+## pandas conver datestrs to datetime
+```py
+datestrs = ["2011-07-06 12:00:00", "2011-08-06 00:00:00"]
+pd.to_datetime(datestrs)
+
+```
+
+## Date Range
+```py
+pd.date_range(start_date, enddate, periods, freq)
+
+```
+## shifting time series data
+```py
+ts.shift(<int>) # shift by frequency of index
+```
+
+## offsets
+```py
+from pandas.tseries.offsets import Day, MonthEnd
+datetime() + MonthEnd() # advances the date to Month end
+offset.rollforward(date) # roll the date forward
+offset.rollback(date)
+```
+
+## grouping using offsets
+```py
+ts.groupby(offset.rollforward()).apply()
+#ts = pd.Series(np.random.standard_normal(20),
+#    index=pd.date_range("2000-05-01", periods=20, freq="4D"))
+# ts.groupby(MonthEnd().rollforward).mean() # monthly means
+```
 
 
 <br>
