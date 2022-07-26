@@ -1,3 +1,71 @@
+- [Creating DataFrame](#creating-dataframe)
+  - [From CSV](#from-csv)
+    - [time series data](#time-series-data)
+    - [From arrays/dict](#from-arraysdict)
+- [Indexing](#indexing)
+  - [setting index](#setting-index)
+  - [Indexing/Slicing](#indexingslicing)
+    - [index names](#index-names)
+    - [swapping index levels](#swapping-index-levels)
+  - [MultiIndex](#multiindex)
+    - [creating multiindex](#creating-multiindex)
+    - [indexing using multindex](#indexing-using-multindex)
+- [Missing Values](#missing-values)
+- [Duplication](#duplication)
+  - [duplicated records](#duplicated-records)
+  - [duplicated labels](#duplicated-labels)
+- [Categorical data](#categorical-data)
+- [Grouping](#grouping)
+  - [GroupBy](#groupby)
+  - [Aggregations](#aggregations)
+  - [split-apply-combine](#split-apply-combine)
+  - [bucketing data using cut and qcut](#bucketing-data-using-cut-and-qcut)
+  - [transform](#transform)
+  - [Pivot Table](#pivot-table)
+    - [group frquencies](#group-frquencies)
+- [Merging](#merging)
+  - [simple merge](#simple-merge)
+  - [multi-index merging](#multi-index-merging)
+  - [diff two dataframes using merge](#diff-two-dataframes-using-merge)
+  - [df.join](#dfjoin)
+  - [concat multiple dataframes by axis](#concat-multiple-dataframes-by-axis)
+- [Reshaping](#reshaping)
+- [Plotting](#plotting)
+- [Statistics](#statistics)
+    - [percentage change](#percentage-change)
+    - [correlation](#correlation)
+    - [miscellaneous](#miscellaneous)
+- [Sorting](#sorting)
+    - [sort values](#sort-values)
+    - [rank values](#rank-values)
+    - [sort by index](#sort-by-index)
+- [Operations](#operations)
+  - [dropping values](#dropping-values)
+  - [check for multiple values](#check-for-multiple-values)
+  - [Change dtype](#change-dtype)
+  - [creating new columns from old columns](#creating-new-columns-from-old-columns)
+  - [column wise ops](#column-wise-ops)
+  - [String columns](#string-columns)
+  - [apply a function along an axis](#apply-a-function-along-an-axis)
+  - [unique values](#unique-values)
+  - [boolean](#boolean)
+- [TimeSeries](#timeseries)
+  - [datetime](#datetime)
+  - [pandas conver datestrs to datetime](#pandas-conver-datestrs-to-datetime)
+  - [Date Range](#date-range)
+  - [shifting time series data](#shifting-time-series-data)
+  - [offsets](#offsets)
+  - [grouping using offsets](#grouping-using-offsets)
+  - [Periods](#periods)
+    - [creating period](#creating-period)
+    - [creating period range](#creating-period-range)
+    - [creating period Index](#creating-period-index)
+    - [changing frequency](#changing-frequency)
+    - [to_timestamp](#to_timestamp)
+    - [to_period](#to_period)
+  - [Resampling](#resampling)
+    - [grouped time resampling](#grouped-time-resampling)
+    - [rolling window mean](#rolling-window-mean)
 # Creating DataFrame
 
 ## From CSV
@@ -90,6 +158,11 @@ df.duplicated() # return boolean series containing True for duplicated rows
 ## duplicated labels
 ```py
 df.index.is_unique
+df2.index.duplicated() # return boolean array indicating True for duplicated labels
+df2.loc[~df2.index.duplicated(), :] # filter duplicated labels
+df2.groupby(level=0).mean() # average over duplicated labels
+df2.groupby(level=0).first() # keep first value in duplicated labels
+pd.DataFrame().set_flags(allows_duplicate_labels=False) # disallows duplicated labels
 ```
 
 # Categorical data
@@ -203,8 +276,15 @@ sns.barplot(x="col", y="col", hue="col", data=df)
 ```py
 <series>.pct_change(periods=<int>)
 ```
-
+### correlation
 ```py
+df["a"].corr(df["b"], method="spearman")   
+df.corr() # pariwise correlations of all columns
+```
+
+### miscellaneous
+```py
+df.rank(axis=0|1)
 df[col].rank()
 df[col].cumsum()
 df[col].mean()
