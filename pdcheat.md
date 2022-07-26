@@ -11,6 +11,10 @@
     - [creating multiindex](#creating-multiindex)
     - [indexing using multindex](#indexing-using-multindex)
 - [Missing Values](#missing-values)
+  - [detecting missing values](#detecting-missing-values)
+  - [handling missing values](#handling-missing-values)
+  - [compare dataframes containing NANs](#compare-dataframes-containing-nans)
+  - [fill missing values using another dataframe](#fill-missing-values-using-another-dataframe)
 - [Duplication](#duplication)
   - [duplicated records](#duplicated-records)
   - [duplicated labels](#duplicated-labels)
@@ -35,20 +39,25 @@
     - [percentage change](#percentage-change)
     - [correlation](#correlation)
     - [miscellaneous](#miscellaneous)
+    - [index of max,min](#index-of-maxmin)
 - [Sorting](#sorting)
     - [sort values](#sort-values)
     - [rank values](#rank-values)
     - [sort by index](#sort-by-index)
 - [Operations](#operations)
   - [dropping values](#dropping-values)
+  - [select columns based on dtypes](#select-columns-based-on-dtypes)
   - [check for multiple values](#check-for-multiple-values)
   - [Change dtype](#change-dtype)
   - [creating new columns from old columns](#creating-new-columns-from-old-columns)
   - [column wise ops](#column-wise-ops)
   - [String columns](#string-columns)
   - [apply a function along an axis](#apply-a-function-along-an-axis)
+  - [apply multiple functions to whole dataframe](#apply-multiple-functions-to-whole-dataframe)
   - [unique values](#unique-values)
   - [boolean](#boolean)
+  - [comparing two df](#comparing-two-df)
+  - [arithmetic](#arithmetic)
 - [TimeSeries](#timeseries)
   - [datetime](#datetime)
   - [pandas conver datestrs to datetime](#pandas-conver-datestrs-to-datetime)
@@ -134,17 +143,27 @@ df.loc[idx[:,:], idx[:,:]] # useful for multiindex
 
 # Missing Values
 
-detecting missing values
+## detecting missing values
 ```py
 df[col].isna() # useful for filtering
 pd.isna(series)
 pd.isnull()
 pd.notnull()
 ```
-handling missing values 
+## handling missing values 
 ```py
 df.dropna()
 df.fillna()
+df.add(df2, fill_value=0) # some ops have fill_value param
+```
+## compare dataframes containing NANs
+```py
+(df + df).equals(df * 2) # because np.nan == np.nan is false, equals handles the nans
+```
+
+## fill missing values using another dataframe
+```py
+df.combine_first(df2) 
 ```
 
 
@@ -166,7 +185,14 @@ pd.DataFrame().set_flags(allows_duplicate_labels=False) # disallows duplicated l
 ```
 
 # Categorical data
+```
+df["grade"] = df["raw_grade"].astype("category") # set a column type
+df["grade"].cat.categories = ["very good", "good", "very bad"] # rename existing categories
+df["grade"] = df["grade"].cat.set_categories(
+    ["very bad", "bad", "medium", "good", "very good"]
+) # order existing categories and add new ones
 
+```
 
 
 # Grouping
@@ -190,6 +216,7 @@ df.groupby().agg({"col":"aggfunc"}) # aggfunc: size, mean/std
 ## split-apply-combine
 ```py
 df.groupby().apply(func) # func can return a series/scalar/df
+
 
 def top5(df, n=5, column="tip_pct"):
     return df.sort_values(column, ascending=False)[:n]
@@ -290,6 +317,11 @@ df[col].cumsum()
 df[col].mean()
 ```
 
+### index of max,min
+```py
+df.idxmax(axis=0|1)
+```
+
 # Sorting
 
 ### sort values
@@ -316,6 +348,11 @@ df.sort_index(level)
 df.drop(label, axis)
 ```
 
+## select columns based on dtypes
+```py
+df.select_dtypes(include=["number", "bool"], exclude=["unsignedinteger"])
+```
+
 ## check for multiple values
 ```py
 df.isin(iterable)
@@ -339,8 +376,12 @@ df[new_col] = df.apply(func(row), axis=1)
 ```
 ## column wise ops
 ```py
-df[col].apply(aggfunc)
+df[col].apply(func)
 #df[col].apply(np.mean) gives mean of col
+df[col].apply(func, raw=bool) # raw passes ndarray to func -> increases performance
+
+df["A"].transform([np.abs, lambda x: x + 1]) # for multiple ops
+df.transform({"A": np.abs, "B": lambda x: x + 1})
 ```
 
 ## String columns
@@ -356,6 +397,11 @@ df[col].str.contains("pattern")
 df.apply(func(row/col), axis=1)
 ```
 
+## apply multiple functions to whole dataframe
+```py
+df.pipe(f1, **kwargs).pipe(f2, **kwargs)
+```
+
 ## unique values
 ```py
 df[col].nunique() # number of unique values in col
@@ -366,6 +412,21 @@ df[col].value_counts() # frequency of unique elemets
 ```py
 df.any()
 df.all()
+df.empty # check if empty
+```
+## comparing two df
+```py
+df.gt(df2) # df > df2
+df2.ne(df)
+```
+
+## arithmetic
+```py
+add()
+sub()
+# dfmi.sub(column, axis=0, level="second") # align by index, column is series
+div()
+divmod() returns tuple of divisor and remainder
 ```
 
 <br>
