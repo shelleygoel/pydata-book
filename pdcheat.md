@@ -39,7 +39,10 @@ df.iloc[row_pos, col_pos]
 df.columns.names = [new names]
 df.index.names  = [new names]
 ```
-
+### swapping index levels
+```py
+df.swaplevel(level1, level2) 
+```
 
 ## MultiIndex
 ### creating multiindex
@@ -72,7 +75,9 @@ df.loc[idx[:,:], idx[:,:]] # useful for multiindex
 # Grouping
 ## GroupBy
 ## Pivot Table
+
 ```py
+df.pivot(index, columns, values) # df.pivot(index="date", columns="item", values=["value1", "value2"])
 df.pivot_table(values, index, columns, aggfunc, fill_value)
 # data.pivot_table(index=["number_label"], columns=["category"], aggfunc=[len], fill_value=0)
 ```
@@ -86,15 +91,25 @@ pd.merge(df1, df2, left_index=bool, right_on="column name", sort, how) # use df1
 
 ## multi-index merging
 ```py
+pd.merge(df1, left_index=True, right_on=[multiple cols])
 ```
 
-## pd.concat
 ## df.join
+```py
+left_df.join(right, how) # uses index of left and right
+left_df.join(right, on="left column") # index in right should match left's column
+```
+
+## concat multiple dataframes by axis
+```py
+pd.concat([dfs], axis="rows|columns", join="inner|outer")
+```
 
 # Reshaping
 ```py
 data.unstack(level) # change index to column
-df.swaplevel(level1, level2) 
+
+pd.melt(df, id_vars=["column names"]) # wide to long, id_vars specify which columns are group indicators
 ```
 
 
